@@ -5,7 +5,6 @@ import logging
 
 from django.conf import settings
 
-
 logging.basicConfig(level=logging.INFO)
 
 def preprocess_query(query):
