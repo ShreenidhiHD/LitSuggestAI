@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>LibraryApp</title>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="text-center my-4">Welcome to LibraryApp</h1>
+
+    <div class="d-flex justify-content-center mb-4">
+        <a href="/books" class="btn btn-primary me-2">View All Books</a>
+        <a href="/add_books" class="btn btn-success">Add a New Book</a>
+      </div>
+
+    <section>
+      <!-- Suggest a Book -->
+      <h2 class="mb-3">Suggest a Book</h2>
+      <div class="mb-3">
+        <label for="user-query" class="form-label">What kind of book are you interested in?</label>
+        <textarea id="user-query" rows="4" class="form-control"></textarea>
+      </div>
+
+      <button id="submit-query" class="btn btn-primary mb-3">Submit</button>
+
+      <div id="suggestion-box">
+        <h3>Your Book Suggestion:</h3>
+        <div id="suggestions-container" class="d-flex flex-row justify-content-start flex-wrap"></div> <!-- Container for all book cards -->
+        <button id="save-book" class="btn btn-success">Save</button>
+        <button id="generate-another" class="btn btn-info">Generate Another</button>
+    </div>
+    
+    </section>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const submitQueryButton = document.getElementById("submit-query");
+      const suggestionBox = document.getElementById("suggestion-box");
+      const suggestedBook = document.getElementById("suggested-book");
+      const userQuery = document.getElementById("user-query");
+      const saveBookButton = document.getElementById("save-book");
+      const generateAnotherButton = document.getElementById("generate-another");
+      
+     
+      submitQueryButton.addEventListener("click", function() {
+        const query = userQuery.value;
+        
+     
+        fetch('/suggest_book/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({ query: query })
+        })
+      
+        .then(response => response.json())
+        
+        .then(data => {
+          console.log(data);
+          
+          // Clear the previous suggestions
+          document.getElementById("suggestions-container").innerHTML = '';
+
+          data.suggestion.books.forEach(book => { 
+              let bookCard = document.createElement("div");
+              bookCard.className = "card p-3 m-2 shadow p-3 mb-5 bg-body rounded";
+              bookCard.style.maxWidth = "300px";
+              bookCard.innerHTML = `
+                  <p><strong>Title: ${book.title}</strong></p>
+                  <p><strong>Author:</strong> ${book.author}</p>
+                  <p><strong>ISBN:</strong> ${book.ISBN}</p>
+              `;
+              document.getElementById("suggestions-container").appendChild(bookCard);
+          });
+
+          suggestionBox.style.display = "block";
+      });
+
+      });
+      
+      
+    });
+  
+    // Function to get CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  </script>
+</body>
+
+</html>
