@@ -132,7 +132,7 @@ MESSAGE_TAGS = {
 }
 
 
-GPT_API_KEY = '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'
+GPT_API_KEY = ''
 
 LOGGING = {
     'version': 1,
